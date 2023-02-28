@@ -4,13 +4,20 @@ Vite 插件，自动根据页面文件生成页面的路由声明文件, 基于 
 
 - `views` -> `pages`
 - `index.vue` -> `page.vue`
+- `typing` -> `@types`
 - 加了备注关掉过滤
+
+## 安装
+
+```sh
+pnpm add @yme/vite-plugin-router-page -D
+```
 
 ## 用法
 
 ```ts
 import {defineConfig} from 'vite';
-import routerPage from '@tne/vite-plugin-router-page';
+import routerPage from '@yme/vite-plugin-router-page';
 
 export default defineConfig({
 	plugins: [
