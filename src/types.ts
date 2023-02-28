@@ -11,6 +11,13 @@ export interface Options {
 	dir: string;
 
 	/**
+	 * the name of the export.
+	 *
+	 * @default 'pages'
+	 */
+	exportName: string;
+
+	/**
 	 * the directories will be excluded.
 	 *
 	 * @default ['components']

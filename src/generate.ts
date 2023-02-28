@@ -53,7 +53,7 @@ function getViewComponentsCode(namesWithModules: NameWithModule[], options: Opti
 	const formatImportKey = (name: string) =>
 		hasShortLine(name) ? name.replace(/-/g, '') : name;
 
-	let code = `\nexport const views: Record<RouterPage.LastDegreeRouteKey, RouteComponent | (() => Promise<RouteComponent>)> = {`;
+	let code = `\nexport const ${options.exportName || 'pages'}: Record<RouterPage.LastDegreeRouteKey, RouteComponent | (() => Promise<RouteComponent>)> = {`;
 	namesWithModules.forEach(({key, module}, index) => {
 		const isNotLazy = checkIsNotLazy(key);
 

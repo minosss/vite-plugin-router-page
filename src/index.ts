@@ -5,6 +5,7 @@ import {getNamesFromFilePaths, getNamesWithModule, getRouterPageDirs, getScanDir
 
 const defaultConfig: Options = {
 	dir: 'src/pages',
+	exportName: 'pages',
 	excludes: ['components'],
 	dts: 'src/@types/router-page.d.ts',
 	patterns: ['page.vue'],
