@@ -24,7 +24,7 @@ const defaultConfig: Options = {
  */
 function routerPagePlugin(options?: Partial<Options>) {
 	const opt = {...defaultConfig, ...options};
-	const scanDir = getScanDir(opt);
+	let scanDir: string[] = [];
 
 	const generate = () => {
 		const dirs = getRouterPageDirs(scanDir, opt);
@@ -44,6 +44,8 @@ function routerPagePlugin(options?: Partial<Options>) {
 		enforce: 'post',
 		configResolved(config) {
 			opt.rootDir ??= config.root;
+			scanDir = getScanDir(opt);
+			generate();
 		},
 		configureServer(server) {
 			server.watcher.on('add', () => {
