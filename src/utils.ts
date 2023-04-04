@@ -2,119 +2,119 @@ import fastGlob from 'fast-glob';
 import type {Options, NameWithModule} from './types';
 
 export function getScanDir(options: Options) {
-	const {rootDir, dir, patterns, excludes} = options;
+    const {rootDir, dir, patterns, excludes} = options;
 
-	const scanDir = patterns.map((pattern) => `${rootDir}/${dir}/**/${pattern}`);
+    const scanDir = patterns.map((pattern) => `${rootDir}/${dir}/**/${pattern}`);
 
-	const excludeDirs: string[] = excludes.map((item) => `!${rootDir}/${dir}/**/${item}`);
+    const excludeDirs: string[] = excludes.map((item) => `!${rootDir}/${dir}/**/${item}`);
 
-	return scanDir.concat(excludeDirs);
+    return scanDir.concat(excludeDirs);
 }
 
 export function getRouterPageDirs(scanDirs: string[], options: Options): string[] {
-	const dirs = fastGlob.sync(scanDirs, {
-		ignore: ['node_modules'],
-		onlyFiles: true,
-		cwd: options.rootDir,
-		absolute: true,
-	});
+    const dirs = fastGlob.sync(scanDirs, {
+        ignore: ['node_modules'],
+        onlyFiles: true,
+        cwd: options.rootDir,
+        absolute: true,
+    });
 
-	return dirs;
+    return dirs;
 }
 
 const PAGE_DEGREE_SPLIT_MARK = '_';
 
 function getNameFromFilePath(path: string, options: Options) {
-	const {rootDir, dir, patterns} = options;
+    const {rootDir, dir, patterns} = options;
 
-	const prefix = `${rootDir}/${dir}/`;
+    const prefix = `${rootDir}/${dir}/`;
 
-	let name = path.replace(prefix, '');
+    let name = path.replace(prefix, '');
 
-	patterns.forEach((pattern) => {
-		const suffix = `/${pattern}`;
+    patterns.forEach((pattern) => {
+        const suffix = `/${pattern}`;
 
-		name = name.replace(suffix, '');
+        name = name.replace(suffix, '');
 
-		name = name.replace(/\//g, PAGE_DEGREE_SPLIT_MARK);
-	});
+        name = name.replace(/\//g, PAGE_DEGREE_SPLIT_MARK);
+    });
 
-	return name;
+    return name;
 }
 
 function getNamesWithParent(name: string) {
-	const names = name.split(PAGE_DEGREE_SPLIT_MARK);
+    const names = name.split(PAGE_DEGREE_SPLIT_MARK);
 
-	const namesWithParent: string[] = [];
+    const namesWithParent: string[] = [];
 
-	for (let i = 1; i <= names.length; i += 1) {
-		namesWithParent.push(
-			names.slice(0, i).reduce((pre, cur) => pre + PAGE_DEGREE_SPLIT_MARK + cur)
-		);
-	}
+    for (let i = 1; i <= names.length; i += 1) {
+        namesWithParent.push(
+            names.slice(0, i).reduce((pre, cur) => pre + PAGE_DEGREE_SPLIT_MARK + cur)
+        );
+    }
 
-	return namesWithParent;
+    return namesWithParent;
 }
 
 /** 转换需要忽略的目录 */
 function transformIgnoreDir(name: string, ignoreDirPrefix: string) {
-	let result = name;
-	if (name.startsWith(ignoreDirPrefix)) {
-		const [, ignoreDir] = name.split(ignoreDirPrefix);
+    let result = name;
+    if (name.startsWith(ignoreDirPrefix)) {
+        const [, ignoreDir] = name.split(ignoreDirPrefix);
 
-		result = name.replace(ignoreDirPrefix + ignoreDir + PAGE_DEGREE_SPLIT_MARK, '');
-	}
+        result = name.replace(ignoreDirPrefix + ignoreDir + PAGE_DEGREE_SPLIT_MARK, '');
+    }
 
-	return result;
+    return result;
 }
 
 function getTransformedNames(globs: string[], options: Options) {
-	const names = globs.map((path) => {
-		const name = getNameFromFilePath(path, options);
-		return transformIgnoreDir(name, options.ignoreDirPrefix);
-	});
+    const names = globs.map((path) => {
+        const name = getNameFromFilePath(path, options);
+        return transformIgnoreDir(name, options.ignoreDirPrefix);
+    });
 
-	return names;
+    return names;
 }
 
 export function getNamesFromFilePaths(globs: string[], options: Options) {
-	const namesWithFile = getTransformedNames(globs, options).sort();
+    const namesWithFile = getTransformedNames(globs, options).sort();
 
-	const allNames: string[] = [];
+    const allNames: string[] = [];
 
-	namesWithFile.forEach((name) => {
-		allNames.push(...getNamesWithParent(name));
-	});
+    namesWithFile.forEach((name) => {
+        allNames.push(...getNamesWithParent(name));
+    });
 
-	allNames.sort();
+    allNames.sort();
 
-	const names = [...new Set(allNames.filter(Boolean))];
+    const names = [...new Set(allNames.filter(Boolean))];
 
-	return {
-		names,
-		namesWithFile,
-	};
+    return {
+        names,
+        namesWithFile,
+    };
 }
 
 function getModuleStrByGlob(glob: string, options: Options) {
-	const {rootDir, dir} = options;
+    const {rootDir, dir} = options;
 
-	const prefix = `${rootDir}/${dir}/`;
+    const prefix = `${rootDir}/${dir}/`;
 
-	const module = `./${glob.replace(prefix, '')}`;
+    const module = `./${glob.replace(prefix, '')}`;
 
-	return module;
+    return module;
 }
 
 export function getNamesWithModule(globs: string[], options: Options): NameWithModule[] {
-	const names = [...globs].sort().map((path) => {
-		const name = getNameFromFilePath(path, options);
-		const key = transformIgnoreDir(name, options.ignoreDirPrefix);
-		return {
-			key,
-			module: getModuleStrByGlob(path, options),
-		};
-	});
+    const names = [...globs].sort().map((path) => {
+        const name = getNameFromFilePath(path, options);
+        const key = transformIgnoreDir(name, options.ignoreDirPrefix);
+        return {
+            key,
+            module: getModuleStrByGlob(path, options),
+        };
+    });
 
-	return names;
+    return names;
 }

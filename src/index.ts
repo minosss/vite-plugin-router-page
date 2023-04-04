@@ -4,19 +4,19 @@ import type {Options} from './types';
 import {getNamesFromFilePaths, getNamesWithModule, getRouterPageDirs, getScanDir} from './utils';
 
 const defaultConfig: Options = {
-	dir: 'src/pages',
-	exportName: 'pages',
-	excludes: ['components'],
-	dts: 'src/@types/router-page.d.ts',
-	patterns: ['page.vue'],
-	ignoreDirPrefix: '_',
-	builtinRoute: {
-		root: 'root',
-		notFound: 'not-found',
-	},
-	notLazyRoutes: [],
-	pagesFormatter: (names) => names,
-	rootDir: process.cwd(),
+    dir: 'src/pages',
+    exportName: 'pages',
+    excludes: ['components'],
+    dts: 'src/@types/router-page.d.ts',
+    patterns: ['page.vue'],
+    ignoreDirPrefix: '_',
+    builtinRoute: {
+        root: 'root',
+        notFound: 'not-found',
+    },
+    notLazyRoutes: [],
+    pagesFormatter: (names) => names,
+    rootDir: process.cwd(),
 };
 
 /**
@@ -24,41 +24,41 @@ const defaultConfig: Options = {
  * @description generate router page declaration
  */
 function routerPagePlugin(options?: Partial<Options>) {
-	const opt = {...defaultConfig, ...options};
-	let scanDir: string[] = [];
+    const opt = {...defaultConfig, ...options};
+    let scanDir: string[] = [];
 
-	const generate = () => {
-		const dirs = getRouterPageDirs(scanDir, opt);
-		const {names, namesWithFile} = getNamesFromFilePaths(dirs, opt);
-		const formatedNames = opt.pagesFormatter(names);
-		const formatedNamesWithFile = opt.pagesFormatter(namesWithFile);
+    const generate = () => {
+        const dirs = getRouterPageDirs(scanDir, opt);
+        const {names, namesWithFile} = getNamesFromFilePaths(dirs, opt);
+        const formatedNames = opt.pagesFormatter(names);
+        const formatedNamesWithFile = opt.pagesFormatter(namesWithFile);
 
-		writeDeclaration(formatedNames, formatedNamesWithFile, opt);
+        writeDeclaration(formatedNames, formatedNamesWithFile, opt);
 
-		const namesWithModule = getNamesWithModule(dirs, opt);
+        const namesWithModule = getNamesWithModule(dirs, opt);
 
-		writeViewComponents(namesWithModule, opt);
-	};
+        writeViewComponents(namesWithModule, opt);
+    };
 
-	const plugin: Plugin = {
-		name: 'router-page',
-		enforce: 'post',
-		configResolved(config) {
-			opt.rootDir ??= config.root;
-			scanDir = getScanDir(opt);
-			generate();
-		},
-		configureServer(server) {
-			server.watcher.on('add', () => {
-				generate();
-			});
-			server.watcher.on('unlink', () => {
-				generate();
-			});
-		},
-	};
+    const plugin: Plugin = {
+        name: 'router-page',
+        enforce: 'post',
+        configResolved(config) {
+            opt.rootDir ??= config.root;
+            scanDir = getScanDir(opt);
+            generate();
+        },
+        configureServer(server) {
+            server.watcher.on('add', () => {
+                generate();
+            });
+            server.watcher.on('unlink', () => {
+                generate();
+            });
+        },
+    };
 
-	return plugin;
+    return plugin;
 }
 
 export default routerPagePlugin;
