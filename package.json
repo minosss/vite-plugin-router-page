@@ -1,6 +1,6 @@
 {
 	"name": "@yme/vite-plugin-router-page",
-	"version": "2.1.1",
+	"version": "2.1.2",
 	"description": "Vite 插件，自动根据页面文件生成页面的路由声明文件",
 	"type": "module",
 	"author": "minosss",

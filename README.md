@@ -22,6 +22,8 @@ import routerPage from '@yme/vite-plugin-router-page';
 export default defineConfig({
 	plugins: [
 		routerPage({
+			// 项目根目录, 默认为 process.cwd(), 一般不需要配置, Windows 环境下需要将 \ 替换为 /
+			rootDir: process.cwd().replace(/\\/g, '/'),
 			dir: 'src/pages',
 			excludes: ['components'],
 			dts: 'src/@types/router-page.d.ts',
