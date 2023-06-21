@@ -67,7 +67,12 @@ function SvgIcon({ name, ...props }: SvgIconProps) {
 function App() {
   return (
     <>
-      <h1>Vite + React</h1>
+      <h1>
+        Vite + React + Custom Plugins
+        <a className='link-github' href='https://github.com/minosss/vite-plugins' target='_blank' rel="noreferrer">
+          <SvgIcon name='brand-github'></SvgIcon>
+        </a>
+      </h1>
       <div className='layout'>
         <div className='sider'>
           {menus?.map((menu) => (

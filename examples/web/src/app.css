@@ -3,6 +3,17 @@ html {
   color: #333;
 }
 
+.link-github {
+  display: inline-flex;
+  font-size: 20px;
+  vertical-align: middle;
+  margin-left: 1rem;
+  padding: 4px;
+  border-radius: 9999px;
+  background-color: #eaeaea;
+  color: inherit;
+}
+
 .layout {
   display: flex;
   gap: 1rem;
