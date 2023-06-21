@@ -31,7 +31,8 @@
     "client.d.ts"
   ],
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
     "cheerio": "1.0.0-rc.12",
@@ -62,5 +63,8 @@
     "entryPoints": [
       "src/index.ts"
     ]
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

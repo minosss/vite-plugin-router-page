@@ -29,7 +29,7 @@
   ],
   "scripts": {
     "build": "tsup",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "pnpm build"
   },
   "dependencies": {
     "fast-glob": "^3.2.12"
@@ -45,5 +45,8 @@
       "cjs",
       "esm"
     ]
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
