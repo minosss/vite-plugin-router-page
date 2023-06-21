@@ -2,6 +2,8 @@
   "private": true,
   "scripts": {},
   "devDependencies": {
+    "@changesets/cli": "^2.26.1",
+    "@svitejs/changesets-changelog-github-compact": "^1.1.0",
     "@types/node": "^20.3.1",
     "@yme/eslint-config-react": "^0.3.1",
     "@yme/eslint-config-typescript": "^0.3.1",
