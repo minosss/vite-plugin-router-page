@@ -1,0 +1,66 @@
+{
+  "name": "@yme/vite-plugin-svg-icon",
+  "description": "a vite plugin for svg icons, generate a svg sprite file and a helper function to use it",
+  "version": "0.0.0",
+  "type": "module",
+  "author": "minosss",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/minosss/vite-plugins",
+    "directory": "packages/svg-icon"
+  },
+  "license": "MIT",
+  "keywords": [
+    "vite",
+    "vite-plugin"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./client": {
+      "types": "./client.d.ts"
+    }
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "client.d.ts"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "dependencies": {
+    "cheerio": "1.0.0-rc.12",
+    "cors": "2.8.5",
+    "debug": "4.3.4",
+    "etag": "1.8.1",
+    "fast-glob": "3.2.12",
+    "micromatch": "4.0.5",
+    "svgo": "3.0.2"
+  },
+  "devDependencies": {
+    "@types/cors": "2.8.13",
+    "@types/debug": "^4.1.8",
+    "@types/etag": "1.8.1",
+    "@types/micromatch": "4.0.2",
+    "vite": "^4.3.9"
+  },
+  "tsup": {
+    "clean": true,
+    "dts": true,
+    "external": [
+      "vite"
+    ],
+    "format": [
+      "cjs",
+      "esm"
+    ],
+    "entryPoints": [
+      "src/index.ts"
+    ]
+  }
+}

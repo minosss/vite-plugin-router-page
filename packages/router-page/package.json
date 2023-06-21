@@ -1,0 +1,49 @@
+{
+  "name": "@yme/vite-plugin-router-page",
+  "description": "Vite 插件，自动根据页面文件生成页面的路由声明文件",
+  "version": "2.1.2",
+  "type": "module",
+  "author": "minosss",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/minosss/vite-plugins",
+    "directory": "packages/router-page"
+  },
+  "license": "MIT",
+  "keywords": [
+    "vite",
+    "vite-plugin"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "fast-glob": "^3.2.12"
+  },
+  "devDependencies": {
+    "vite": "^4.3.9"
+  },
+  "tsup": {
+    "entry": ["src/index.ts"],
+    "dts": true,
+    "clean": true,
+    "format": [
+      "cjs",
+      "esm"
+    ]
+  }
+}
