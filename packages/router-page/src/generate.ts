@@ -27,7 +27,7 @@ function getDeclaration(names: string[], namesWithFile: string[], options: Optio
 
   code += ';';
 
-  code += `\n\n  /** 最后一级路由(该级路有对应的vue文件) */\n  type LastDegreeRouteKey = Extract<RouteKey, ${namesWithFile
+  code += `\n\n  /** 最后一级路由(该级路有对应的页面文件) */\n  type LastDegreeRouteKey = Extract<RouteKey, ${namesWithFile
         .map((item) => `'${item}'`)
         .join(' | ')}>`;
 
@@ -37,7 +37,7 @@ function getDeclaration(names: string[], namesWithFile: string[], options: Optio
 }
 
 function getViewComponentsCode(namesWithModules: NameWithModule[], options: Options) {
-  let importStatement = '// Define your global type AppRouter.Component\n';
+  let importStatement = '// Define your global type AppRouter.Component';
 
   const checkIsNotLazy = (name: string) =>
     options.notLazyRoutes.includes(name);
