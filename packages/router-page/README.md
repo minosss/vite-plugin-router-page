@@ -1,5 +1,8 @@
 # vite-plugin-router-page
 
+[![NPM Version](https://img.shields.io/npm/v/@yme/vite-plugin-router-page)](https://www.npmjs.com/package/@yme/vite-plugin-router-page)
+[![NPM Downloads](https://img.shields.io/npm/dm/@yme/vite-plugin-router-page)](https://www.npmjs.com/package/@yme/vite-plugin-router-page)
+
 Vite 插件，自动根据页面文件生成页面的路由声明文件, 基于 [soybeanjs/vite-plugin-vue-page-route v1.0.3](https://github.com/soybeanjs/vite-plugin-vue-page-route/tree/v1.0.3)
 
 - `views` -> `pages`

@@ -1,5 +1,8 @@
 # vite-plugin-svg-icon
 
+[![NPM Version](https://img.shields.io/npm/v/@yme/vite-plugin-svg-icon)](https://www.npmjs.com/package/@yme/vite-plugin-svg-icon)
+[![NPM Downloads](https://img.shields.io/npm/dm/@yme/vite-plugin-svg-icon)](https://www.npmjs.com/package/@yme/vite-plugin-svg-icon)
+
 A vite plugin for generating svg sprite, based on [vite-plugin-svg-icons](https://github.com/vbenjs/vite-plugin-svg-icons)
 
 ## Install
