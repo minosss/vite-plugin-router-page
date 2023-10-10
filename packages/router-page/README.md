@@ -9,8 +9,9 @@ Vite 插件，自动根据页面文件生成页面的路由声明文件, 基于 
 - `index.vue` -> `page.vue`
 - `typing` -> `@types`
 - 只生成数据和类型定义，不依赖 vue-router 等
-- ✨ **2.2.0开始 react 也可以用了，首先定义一个全局类型 AppRouter.Component**
+- **2.2.0开始 react 也可以用了，首先定义一个全局类型 AppRouter.Component**
 - 加了备注关掉过滤
+- ✨ **2.3.0**开始 `exportRoutePath` 选项，是否导出路由路径
 
 ## 安装
 
@@ -43,7 +44,31 @@ export default defineConfig({
           const SYSTEM_VIEW = 'system-view_';
           return name.replace(SYSTEM_VIEW, '');
         }),
+      exportRoutePath: true,
     }),
   ],
 });
 ```
+
+如果设置了导出路由 `exportRoutePath`
+
+```ts
+// 在 src/@types/router-page.d.ts 中
+type RoutePaths =
+  // ...
+  | '/login'
+  | '/users/:id';
+  // ...
+
+// 在 /src/pages/index.ts 中
+export const routes = {
+  // ...
+  'login': '/login',
+  'users_[id]': '/users/:id',
+  // ...
+}
+```
+
+## 许可证
+
+MIT
