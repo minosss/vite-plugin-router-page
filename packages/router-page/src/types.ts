@@ -67,9 +67,16 @@ export interface Options {
    * the root directory of the project
    */
   rootDir?: string;
+
+  /**
+   * whether export route path
+   */
+  exportRoutePath?: boolean;
 }
 
-export interface NameWithModule {
-  key: string;
-  module: string;
+export interface Page {
+  name: string;
+  dirs: string[];
+  path: string;
+  route: string;
 }

@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite';
 import type { Options } from './types';
 import { writeDeclaration, writeViewComponents } from './generate';
-import { getNamesFromFilePaths, getNamesWithModule, getRouterPageDirs, getScanDir } from './utils';
+import { getPages, getRouterPageDirs, getScanDir } from './utils';
 
 const defaultConfig: Options = {
   dir: 'src/pages',
@@ -17,6 +17,7 @@ const defaultConfig: Options = {
   notLazyRoutes: [],
   pagesFormatter: (names) => names,
   rootDir: process.cwd(),
+  exportRoutePath: false,
 };
 
 /**
@@ -28,16 +29,11 @@ function routerPagePlugin(options?: Partial<Options>) {
   let scanDir: string[] = [];
 
   const generate = () => {
-    const dirs = getRouterPageDirs(scanDir, opt);
-    const { names, namesWithFile } = getNamesFromFilePaths(dirs, opt);
-    const formatedNames = opt.pagesFormatter(names);
-    const formatedNamesWithFile = opt.pagesFormatter(namesWithFile);
+    const globs = getRouterPageDirs(scanDir, opt);
+    const pages = getPages(globs, opt);
 
-    writeDeclaration(formatedNames, formatedNamesWithFile, opt);
-
-    const namesWithModule = getNamesWithModule(dirs, opt);
-
-    writeViewComponents(namesWithModule, opt);
+    writeDeclaration(pages, opt);
+    writeViewComponents(pages, opt);
   };
 
   const plugin: Plugin = {

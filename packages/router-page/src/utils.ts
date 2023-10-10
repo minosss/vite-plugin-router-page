@@ -1,4 +1,4 @@
-import type { Options, NameWithModule } from './types';
+import type { Options, Page } from './types';
 import fastGlob from 'fast-glob';
 
 export function getScanDir(options: Options) {
@@ -35,7 +35,6 @@ function getNameFromFilePath(path: string, options: Options) {
     const suffix = `/${pattern}`;
 
     name = name.replace(suffix, '');
-
     name = name.replaceAll('/', PAGE_DEGREE_SPLIT_MARK);
   }
 
@@ -68,37 +67,8 @@ function transformIgnoreDir(name: string, ignoreDirPrefix: string) {
   return result;
 }
 
-function getTransformedNames(globs: string[], options: Options) {
-  const names = globs.map((path) => {
-    const name = getNameFromFilePath(path, options);
-    return transformIgnoreDir(name, options.ignoreDirPrefix);
-  });
-
-  return names;
-}
-
-export function getNamesFromFilePaths(globs: string[], options: Options) {
-  const namesWithFile = getTransformedNames(globs, options).sort();
-
-  const allNames: string[] = [];
-
-  for (const name of namesWithFile) {
-    allNames.push(...getNamesWithParent(name));
-  }
-
-  allNames.sort();
-
-  const names = [...new Set(allNames.filter(Boolean))];
-
-  return {
-    names,
-    namesWithFile,
-  };
-}
-
 function getModuleStrByGlob(glob: string, options: Options) {
   const { rootDir, dir } = options;
-
   const prefix = `${rootDir}/${dir}/`;
 
   const module = `./${glob.replace(prefix, '')}`;
@@ -106,15 +76,32 @@ function getModuleStrByGlob(glob: string, options: Options) {
   return module;
 }
 
-export function getNamesWithModule(globs: string[], options: Options): NameWithModule[] {
-  const names = [...globs].sort().map((path) => {
-    const name = getNameFromFilePath(path, options);
-    const key = transformIgnoreDir(name, options.ignoreDirPrefix);
+function getRouteByGlob(glob: string, options: Options) {
+  const { rootDir, dir, patterns } = options;
+  const prefix = `${rootDir}/${dir}/`;
+
+  const route = glob
+    .replace(prefix, '')
+    .split('/')
+    .filter((v) => !patterns.includes(v) && !v.startsWith('_'))
+    .map((v) => v.replace(/^\[(.*?)]$/, ':$1'))
+    .join('/');
+
+  return `/${route}`;
+}
+
+export function getPages(globs: string[], options: Options): Page[] {
+  return [...globs].sort().map((path) => {
+    const pagePath = getModuleStrByGlob(path, options);
+    const pageRoute = getRouteByGlob(path, options);
+    let name = getNameFromFilePath(path, options);
+    name = transformIgnoreDir(name, options.ignoreDirPrefix);
+
     return {
-      key,
-      module: getModuleStrByGlob(path, options),
+      name,
+      dirs: getNamesWithParent(name),
+      path: pagePath,
+      route: pageRoute,
     };
   });
-
-  return names;
 }
