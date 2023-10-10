@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "turbo": "turbo",
-    "build": "turbo run build",
+    "build": "turbo run build --filter='./packages/*'",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "changeset publish"

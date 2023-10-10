@@ -1,4 +1,3 @@
-import type { RouteObject } from 'react-router-dom';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { pages } from './pages';
 import RootLayout from './layout';
