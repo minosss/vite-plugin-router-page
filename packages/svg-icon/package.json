@@ -1,7 +1,7 @@
 {
   "name": "@yme/vite-plugin-svg-icon",
   "description": "a vite plugin for svg icons, generate a svg sprite file and a helper function to use it",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
   "author": "minosss",
   "repository": {
