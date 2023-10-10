@@ -15,6 +15,7 @@ export default defineConfig({
       dir: 'src/pages',
       dts: 'src/@types/router-page.d.ts',
       patterns: ['page.tsx'],
+      exportRoutePath: true,
     }),
     createSvgIconsPlugin({
       iconDirs: [resolve(srcPath, 'assets/icons')],

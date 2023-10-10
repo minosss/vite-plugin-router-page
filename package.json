@@ -1,7 +1,11 @@
 {
   "private": true,
   "scripts": {
-    "changeset": "changeset"
+    "turbo": "turbo",
+    "build": "turbo run build",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.26.1",

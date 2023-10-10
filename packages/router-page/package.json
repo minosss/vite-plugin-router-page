@@ -28,23 +28,13 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
-    "prepublishOnly": "pnpm build"
+    "build": "tsup"
   },
   "dependencies": {
     "fast-glob": "^3.2.12"
   },
   "devDependencies": {
     "vite": "^4.3.9"
-  },
-  "tsup": {
-    "entry": ["src/index.ts"],
-    "dts": true,
-    "clean": true,
-    "format": [
-      "cjs",
-      "esm"
-    ]
   },
   "publishConfig": {
     "access": "public"
