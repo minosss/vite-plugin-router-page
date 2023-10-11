@@ -384,3 +384,5 @@ export function getSetOptions(sets: string[], options: ViteSvgIconsPlugin): Vite
     iconDirs: sets.map((set) => path.join(setParent, set)),
   };
 }
+
+export default createSvgIconsPlugin;
