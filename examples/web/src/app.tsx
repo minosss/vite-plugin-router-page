@@ -21,7 +21,7 @@ const router = createHashRouter([
       },
       {
         path: '/system/user',
-        handle: { title: 'User (fail after 1s)', icon: 'license' },
+        handle: { title: 'User (fail after 1s)', icon: 'info-license' },
         async lazy() {
           const { default: Component, loader, ErrorBoundary } = await pages.system_user();
           return {
@@ -70,7 +70,7 @@ function App() {
       <h1>
         Vite + React + Custom Plugins
         <a className='link-github' href='https://github.com/minosss/vite-plugins' target='_blank' rel="noreferrer">
-          <SvgIcon name='brand-github'></SvgIcon>
+          <SvgIcon name='common-brand-github'></SvgIcon>
         </a>
       </h1>
       <div className='layout'>

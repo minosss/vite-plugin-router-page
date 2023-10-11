@@ -26,32 +26,37 @@ type OptimizeOptions = Config;
 
 interface ViteSvgIconsPlugin {
   /**
-     * icons folder, all svg files in it will be converted to svg sprite.
-     */
+   * icons folder, all svg files in it will be converted to svg sprite.
+   */
   iconDirs: string[];
 
   /**
-     * svgo configuration, used to compress svg
-     * @default：true
-     */
+   * split svg sprite
+   */
+  splitting?: boolean;
+
+  /**
+   * svgo configuration, used to compress svg
+   * @default：true
+   */
   svgoOptions?: boolean | OptimizeOptions;
 
   /**
-     * icon format
-     * @default: icon-[dir]-[name]
-     */
+   * icon format
+   * @default: icon-[dir]-[name]
+   */
   symbolId?: string;
 
   /**
-     * icon format
-     * @default: body-last
-     */
+   * icon format
+   * @default: body-last
+   */
   inject?: DomInject;
 
   /**
-     * custom dom id
-     * @default: __svg__icons__dom__
-     */
+   * custom dom id
+   * @default: __svg__icons__dom__
+   */
   customDomId?: string;
 }
 
@@ -65,6 +70,7 @@ export function createSvgIconsPlugin(opt?: ViteSvgIconsPlugin): Plugin {
     symbolId: 'icon-[dir]-[name]',
     inject: 'body-last' as const,
     customDomId: SVG_DOM_ID,
+    splitting: false,
     ...opt,
   };
 
@@ -83,31 +89,29 @@ export function createSvgIconsPlugin(opt?: ViteSvgIconsPlugin): Plugin {
     name: 'vite:svg-icons',
     configResolved(resolvedConfig) {
       isBuild = resolvedConfig.command === 'build';
-      debug('resolvedConfig:', resolvedConfig);
     },
     resolveId(id) {
-      if ([SVG_ICONS_REGISTER_NAME, SVG_ICONS_CLIENT].includes(id)) {
-        return id;
+      debug('resolve', id);
+      if ([SVG_ICONS_REGISTER_NAME, SVG_ICONS_CLIENT].some((iconId) => id.includes(iconId))) {
+        return id.replace('/@id/', '');
       }
       return null;
     },
 
-    async load(id, ssr) {
-      if (!isBuild && !ssr) return null;
+    async load(id) {
+      const isSvgIcons = [SVG_ICONS_REGISTER_NAME, SVG_ICONS_CLIENT].map((iconId) => id.startsWith(iconId));
+      if (isSvgIcons.includes(true)) {
+        debug('load', id);
 
-      const isRegister = id.endsWith(SVG_ICONS_REGISTER_NAME);
-      const isClient = id.endsWith(SVG_ICONS_CLIENT);
+        const [isRegister, isClient] = isSvgIcons;
 
-      if (ssr && !isBuild && (isRegister || isClient)) {
-        return 'export default {}';
-      }
-
-      const { code, idSet } = await createModuleCode(cache, optimizeOptions, options);
-      if (isRegister) {
-        return code;
-      }
-      if (isClient) {
-        return idSet;
+        const { code, idSet } = await createModuleCode(cache, optimizeOptions, options, id);
+        if (isRegister) {
+          return code;
+        }
+        if (isClient) {
+          return idSet;
+        }
       }
     },
     configureServer: ({ middlewares }) => {
@@ -115,17 +119,29 @@ export function createSvgIconsPlugin(opt?: ViteSvgIconsPlugin): Plugin {
       middlewares.use(async (req, res, next) => {
         const url = normalizePath(req.url!);
 
-        const registerId = `/@id/${SVG_ICONS_REGISTER_NAME}`;
-        const clientId = `/@id/${SVG_ICONS_CLIENT}`;
-        if ([clientId, registerId].some((item) => url.endsWith(item))) {
+        const isSvgIcons = [SVG_ICONS_REGISTER_NAME, SVG_ICONS_CLIENT].map((iconId) => url.startsWith(`/@id/${iconId}`));
+
+        if (isSvgIcons.includes(true)) {
+          const [isRegister, isClient] = isSvgIcons;
+
           res.setHeader('Content-Type', 'application/javascript');
           res.setHeader('Cache-Control', 'no-cache');
+
+          debug('loading', url);
+
+          let content = '';
           const { code, idSet } = await createModuleCode(
             cache,
             optimizeOptions,
             options,
+            url,
           );
-          const content = url.endsWith(registerId) ? code : idSet;
+
+          if (isRegister) {
+            content = code;
+          } else if (isClient) {
+            content = idSet;
+          }
 
           res.setHeader('Etag', etag(content, { weak: true }));
           res.statusCode = 200;
@@ -142,31 +158,59 @@ export async function createModuleCode(
   cache: Map<string, any>,
   svgoOptions: OptimizeOptions,
   options: ViteSvgIconsPlugin,
+  source: string,
 ) {
-  const { insertHtml, idSet } = await compilerIcons(cache, svgoOptions, options);
+  debug('create module', source);
 
+  const { splitting, customDomId, inject } = options;
+  // sets
+  let elementId = customDomId;
+  let sets: string[];
+  if (splitting && source.includes('?')) {
+    // xxx-id?a&b
+    const setList = source.split('?').pop();
+    sets = setList?.split('&') || [];
+    if (sets.length > 1) {
+      const isRegister = source.includes(SVG_ICONS_REGISTER_NAME);
+      // const isClient = source.includes(SVG_ICONS_CLIENT);
+      return {
+        code: `${sets.map((s) => `import '/@id/${isRegister ? SVG_ICONS_REGISTER_NAME : SVG_ICONS_CLIENT}?${s}';`).join('\n')}\nexport default {};`,
+        idSet: `export default ${JSON.stringify([])}`,
+      };
+    }
+    elementId = `${customDomId}_${sets.join('_')}`;
+  }
+  const { insertHtml, idSet } = await compilerIcons(cache, svgoOptions, options, sets);
+  const code = getInjectCode(elementId, insertHtml, inject);
+
+  return {
+    code: `${code}\nexport default {}`,
+    idSet: `export default ${JSON.stringify([...idSet])}`,
+  };
+}
+
+function getInjectCode(elementId: string, content: string, inject: string) {
   const xmlns = `xmlns="${XMLNS}"`;
   const xmlnsLink = `xmlns:xlink="${XMLNS_LINK}"`;
-  const html = insertHtml
+  const html = content
     .replaceAll(new RegExp(xmlns, 'g'), '')
     .replaceAll(new RegExp(xmlnsLink, 'g'), '');
-
   const code = `
        if (typeof window !== 'undefined') {
          function loadSvg() {
            var body = document.body;
-           var svgDom = document.getElementById('${options.customDomId}');
+           var svgDom = document.getElementById('${elementId}');
            if(!svgDom) {
              svgDom = document.createElementNS('${XMLNS}', 'svg');
              svgDom.style.position = 'absolute';
              svgDom.style.width = '0';
              svgDom.style.height = '0';
-             svgDom.id = '${options.customDomId}';
+             svgDom.id = '${elementId}';
              svgDom.setAttribute('xmlns','${XMLNS}');
              svgDom.setAttribute('xmlns:link','${XMLNS_LINK}');
            }
            svgDom.innerHTML = ${JSON.stringify(html)};
-           ${domInject(options.inject)}
+           ${domInject(inject)}
          }
          if(document.readyState === 'loading') {
            document.addEventListener('DOMContentLoaded', loadSvg);
@@ -175,10 +219,7 @@ export async function createModuleCode(
          }
       }
         `;
-  return {
-    code: `${code}\nexport default {}`,
-    idSet: `export default ${JSON.stringify([...idSet])}`,
-  };
+  return code;
 }
 
 function domInject(inject = 'body-last') {
@@ -192,30 +233,52 @@ function domInject(inject = 'body-last') {
   }
 }
 
-// /**
-//  * Preload all icons in advance
-//  * @param cache
-//  * @param options
-//  */
+/**
+  * Preload all icons in advance
+  * @param cache
+  * @param options
+  */
 export async function compilerIcons(
   cache: Map<string, any>,
   svgOptions: OptimizeOptions,
   options: ViteSvgIconsPlugin,
+  sets?: string[],
 ) {
-  const { iconDirs } = options;
+  const { iconDirs, splitting } = options;
+
+  if (splitting && iconDirs.length > 1) {
+    console.warn(`[@yme/vite-plugin-svg-icon] splitting option recommended to use with only one iconDirs, found ${iconDirs.length}`);
+  }
 
   let insertHtml = '';
   const idSet = new Set<string>();
 
+  let source: string | (string[]) = '**/*.svg';
+  let deep = Number.MAX_SAFE_INTEGER;
+
+  if (splitting) {
+    if (Array.isArray(sets) && sets.length > 0) {
+      source = sets.map((set) => `${set}/**/*.svg`);
+    } else {
+      deep = 1;
+    }
+  }
+
   for (const dir of iconDirs) {
-    const svgFilsStats = fg.sync('**/*.svg', {
+    debug('scan dir with srouce', dir, source);
+
+    const svgFilsStats = fg.sync(source, {
       cwd: dir,
       stats: true,
       absolute: true,
+      deep,
     });
+
+    debug(`found ${svgFilsStats.length} icons`);
 
     for (const entry of svgFilsStats) {
       const { path, stats: { mtimeMs } = {} } = entry;
+
       const cacheStat = cache.get(path);
       let svgSymbol;
       let symbolId;
@@ -309,4 +372,15 @@ export function discreteDir(name: string) {
   const fileName = strList.pop();
   const dirName = strList.join('-');
   return { fileName, dirName };
+}
+
+export function getSetOptions(sets: string[], options: ViteSvgIconsPlugin): ViteSvgIconsPlugin {
+  const setParent = options.iconDirs[0];
+  const customDomId = `${options.customDomId}_${sets.join('_')}`;
+
+  return {
+    ...options,
+    customDomId,
+    iconDirs: sets.map((set) => path.join(setParent, set)),
+  };
 }

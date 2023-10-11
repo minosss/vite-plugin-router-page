@@ -1,4 +1,5 @@
 import { useRouteError } from 'react-router-dom';
+import 'virtual:svg-icons-register?info';
 
 export async function loader() {
   // sleep 1 s

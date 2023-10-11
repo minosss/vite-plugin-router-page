@@ -40,4 +40,5 @@ declare namespace RouterPage {
     | '/system/user'
     | '/users/:id'
     | '/users/pro_file';
+
 }
