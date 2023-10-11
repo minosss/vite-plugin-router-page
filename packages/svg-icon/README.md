@@ -24,7 +24,41 @@ export default defineConfig({
       iconDirs: [path.resolve(process.cwd(), 'src/assets/icons')],
       // 指定symbolId格式
       symbolId: 'icon-[dir]-[name]',
+      // 将第一层目录当作分组导入
+      // splitting: true
     }),
   ],
 });
 ```
+
+### How to splitting svg sprite
+
+1. enable `splitting` option in plugin config
+2. import svg icons with directory name, e.g. `virtual:svg-icons-register?common`
+
+  ```
+  src
+    - assets
+      - icons
+        - common <-- directory name
+          - icon.svg
+  ```
+
+3. if you enable the `splitting` option, the `virtual:svg-icons-register` will only load svg icons in top-level directories, e.g. `assets/icons/*.svg`
+4. otherwise, you can load multiple directories, e.g. `virtual:svg-icons-register?common&info`
+
+### How about the svg components?
+
+planning to support in the future (maybe), it should be like this:
+
+```ts
+// type-safe
+import { IconLock, IconInfoLicense } from 'virtual:svg-icons-component';
+
+// <IconLock />
+// <IconInfoLicense />
+```
+
+## License
+
+MIT
